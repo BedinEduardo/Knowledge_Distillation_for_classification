@@ -1,0 +1,39 @@
+# A code to load the hyperparameters to Distilate Knowledge
+
+# Project Indentification
+project_name: Teste1
+exp_name: Exp1
+
+## Defining the Teacher and the Student
+teacher: "EfficientNetB0Teacher"
+student: "LightNN"
+
+# Training hyperparameters
+batch_size: 16
+num_workers: 2
+epochs: 2
+learning_rate: 0.001
+
+# Losses functions
+loss_func_train: 1   # used to train teacher and student models -
+loss_func_out_layer: 1
+loss_func_soft_label: 2  # used to distillate using soft_labels
+loss_func_hidden_layers: 3  # Used to distillate using hidden layers --> Feature maps --> regression
+
+# Optmizers functions
+optimizer_func_train: 1
+optimizer_func_out_layer: 1
+optimizer_func_soft_label: 1
+optimizer_func_hidden_layers: 1
+
+#distilation hyperparameters
+temperature: 2
+# KD output layer by loss_fn
+soft_target_loss_weight: 0.6  # This variable is used to weight the loss function used in output layer distilation by loss function
+ce_loss_weight_out_layer: 0.4  # this variable is 1 - soft_target_loss_weight  # this variable is the weight of cross_entropy loss --> a loss fn used in classification tasks
+# KD soft_label -- hidden layer -- loss_fn
+ce_loss_weight_soft_label: 0.35
+hidden_rep_loss_weight: 0.65 # this variable is used to calculate the weight of the representation of the loss function for hidden layers in soft labels KD
+# KD hidden layers
+ce_loss_weight_hidden_layers: 0.4
+feature_map_weight: 0.6
