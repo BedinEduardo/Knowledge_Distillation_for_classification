@@ -217,7 +217,7 @@ class TrainTestLoops():
 			for epoch in tqdm(range(epochs)):
 				
 				if KD == 1:  # This means that will be KD by output layer
-					print("\n[IN_PROGRESS: ]Peforming the Distillation Step in Output Layer\n")
+					print("\n[IN_PROGRESS: ]Peforming the Distillation Step in Output Layer using Loss Function\n")
 					train_loss, train_acc = TrainKD.train_kd_output_layer(teacher=teacher,  # This part perform the training step using teacher --> student
 															student=student,
 															train_loader=train_loader,
@@ -251,7 +251,7 @@ class TrainTestLoops():
 					results = metric_function(epoch, train_loss, train_acc, test_loss, test_acc)
 
 				elif KD == 2:
-					print("\n[IN_PROGRESS: ]Peforming the Distillation Step in Soft Labels\n")
+					print("\n[IN_PROGRESS: ]Peforming the Distillation Step in Soft Labels opf Flattened Vectors from output of Conv Layers\n")
 					train_loss, train_acc = TrainKD.train_kd_output_layer(teacher=teacher,  # This part perform the training step using teacher --> student
 															student=student,
 															train_loader=train_loader,
@@ -284,7 +284,7 @@ class TrainTestLoops():
 					results = metric_function(epoch, train_loss, train_acc, test_loss, test_acc)
 
 				elif KD ==3:
-					print("\n[IN_PROGRESS: ]Performing the Distillation Step on Hidden Layers")
+					print("\n[IN_PROGRESS: ]Performing the Distillation Step from output of Conv Layers")
 					train_loss, train_acc = TrainKD.train_kd_output_layer(teacher=teacher,  # This part perform the training step using teacher --> student
 															student=student,
 															train_loader=train_loader,
@@ -310,7 +310,7 @@ class TrainTestLoops():
 														loss_func=None,
 														loss_func_out_layer=loss_func_out_layer,
 														loss_func_soft_label=None,
-														loss_func_hidden_layer=loss_func_hidden_layers,
+														loss_func_hidden_layers=loss_func_hidden_layers,
 														test_loader=test_loader,
 														KD=KD,
 														device=device)

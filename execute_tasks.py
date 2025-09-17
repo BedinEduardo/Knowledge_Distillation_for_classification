@@ -13,7 +13,7 @@ from networks.teachers import select_teacher
 from networks.students import LightNN
 from train_test_step import TrainTestBeforeDistil, TrainKD, TrainTestLoops
 from utils.arguments_from_experiment import hyperparameters_classification #, load_yaml, build_record_folder, get_args
-from utils.compare_teacher_student import compare_student_teacher
+from utils.compare_teacher_student import compare_student_teacher, summary_func
 
 device = "cuda" if torch. torch.cuda.is_available() else "cpu"
 print(f"\n DEVICE IN USE: {device} \n")
@@ -30,15 +30,20 @@ def distillation_classification(args):
 	# Defining the teachers and the students
 	teacher = select_teacher(model=args.teacher,num_classes=len_class_names).to(device)  # To insert the function to select the network --> Change it for a loop that can run several configurations
 
-	student = LightNN(num_classes=len_class_names).to(device)
+	student = LightNN(num_classes=len_class_names, teacher_hidden_size=teacher.hidden_size).to(device)
 
 	# BULD IN THIS PART THE STUDENT VARIABLES ACCORDING THE DISTILLATION STEP THAT IT IS PERFORMING.
 
-	new_student = LightNN(num_classes=len_class_names).to(device)  # this variable is used to compare the performances before and after distilate
+	new_student = LightNN(num_classes=len_class_names, teacher_hidden_size=teacher.hidden_size).to(device)  # this variable is used to compare the performances before and after distilate
 
-	print(f"\nThe Teacher Network: {teacher}\n")   # Check how to can read the Network Nane --> Check in the pre-trained models before
+	#print(f"\nThe Teacher Network: {teacher.classifier}\n")   # Check how to can read the Network Nane --> Check in the pre-trained models before # Check how to 
+	# use this .classifier in other networks
+	print("The Teacher Network")
+	summary_func(model=teacher)
 	time.sleep(0.5)
 	print(f"\nThe Student Network: {student}\n")
+	#print("\nThe Student Network\n")
+	#summary_func(model=student)
 	time.sleep(0.5)
 
 	# comparing the parameters of the teacher and student models
@@ -100,7 +105,7 @@ def distillation_classification(args):
 
 	# Now calling the train function to distillate in the output layer
 	print("\n[IN_PROGRESS]NOW STARTING THE DISTILLATION PROCESS \n \n")
-	print("\n[STEP:] First Step: Distillate from the output layer\n")
+	print(f"\n[STEP:] First Step: Distillate from the output layer of Classifier using {args.loss_func_train} Loss Function \n")
 
 	# TO CORRECT THE LINE CODE BELOW - I CALLED THE TrainKD Class direct ==> SHOULD CALL TTrainTestLoops.train_loop --> and before it call the TrainKD --> and training loop 
 	# Can adapt the function to underestand in each Distillation step it is
@@ -131,7 +136,7 @@ def distillation_classification(args):
 													device=device)	
 	
 	
-	print("\n[STEP: ]Second Step: Distillate from Softlabels using Cosine Minimization Loss Function")
+	print(f"\n[STEP: ]Second Step: Distillate from Softlabels using {args.loss_func_soft_label} Loss Function")
 	distilate_softlabel = TrainTestLoops.train_loop(teacher=teacher,
 													student=student,
 													train_loader=train_loader,
@@ -157,7 +162,7 @@ def distillation_classification(args):
 													step=2,
 													device=device)
 	
-	print("\n [STEP: ] Third Step: Distilate using feature maps from hidden layers")
+	print(f"\n [STEP: ] Third Step: Distilate using feature maps from output conv layers. Using {args.loss_func_hidden_layers}")
 	distillate_hidden_layers = TrainTestLoops.train_loop(teacher=teacher,
 													student=student,
 													train_loader=train_loader,
