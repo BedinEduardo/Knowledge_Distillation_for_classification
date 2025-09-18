@@ -39,14 +39,23 @@ class DeepNN(nn.Module):
 			nn.Dropout2d(0.1),
 			nn.Linear(512,num_classes)
 			)
+		in_features = self.classifier[0].in_features
+		#out_features = self.features[7].out_channels
+		self.hidden_size = in_features
+		#self.hidden_size = out_features
 	
 	def forward(self, x):
+		
 		x = self.features(x)  # First in all networks pass the input in Conv layers
-		#x = torch.flatten(x,1) # This is the original code, but for further distillations is needed to transform in a specific variable to return it to destilation process		
+		print(f"first x.shape: {x.shape}\n")
 		flattened_conv_output = torch.flatten(x,1)  # the output of conv layers as a flatten tensor
+		print(f"flattened_conv_output.shape: {flattened_conv_output.shape}\n")
 		conv_feature_maps = x  # this line will be used to Distillate by feature maps
+		print(f"conv_feature_maps.shape: {conv_feature_maps.shape}\n")
 		x = self.classifier(flattened_conv_output)  # pass the flattened output in the classifier
+		print(f"second x.shape: {x.shape}\n")
 		flattened_conv_output_after_pooling = torch.nn.functional.avg_pool1d(flattened_conv_output,2) # is a vector with dimmensionality adjusted to be used in loss function
+		print(f"flattened_conv_output_after_pooling.shape: {flattened_conv_output_after_pooling.shape}\n")
 
 		return x, flattened_conv_output_after_pooling, conv_feature_maps # x is the predicted value (logits) - 
 													  # x is the feature map of the last layer
@@ -71,24 +80,26 @@ class EfficientNetB0Teacher(nn.Module):
 
 	def forward(self,x):
 		# Step 1: Extract feature maps from LAST Conv block
+		print("\nPRINTING TEACHER EFFICIENTNETB0")
 		x = self.model.features(x)  # last conv features - pass through the input into conv layers
-		#print(f"\n1st X Teacher shape: {x.shape}\n")
+		print(f"\n1st X Teacher shape: {x.shape}\n")
 		
 		# Step 2: Flatten for linear classifier
 		pooled = self.model.avgpool(x)  # This line is from the Architecture of EfficientNetB0 - and the others....
-		#print(f"Teacher pooled shape: {pooled.shape}\n")		
+		print(f"Teacher pooled shape: {pooled.shape}\n")		
 		flattened_conv_output = torch.flatten(pooled,1)  # flatten the pooled layer --> prepares features for classifier - like original EfficientNet foward
-		#print(f"Flattened_conv_output_shape Teacher: {flattened_conv_output.shape}\n")
+		print(f"Flattened_conv_output_shape Teacher: {flattened_conv_output.shape}\n")
 				
 		conv_feature_maps = x  # gets the conv maps from 1st block - model features
-		#print(f"conv_feature_maps teacher shape: {conv_feature_maps.shape}\n")
+		print(f"conv_feature_maps teacher shape: {conv_feature_maps.shape}\n")
 
 		# Step 3. Get logits
 		x = self.model.classifier(flattened_conv_output) # pass the flattened output in the classifier.
-		#print(f"Output X teacher shape: {x.shape}\n")
+		print(f"Output X teacher shape: {x.shape}\n")
+		
 		# Step 4. BUild reduced feature vector for distillation los
 		flattened_conv_output_after_pooling = torch.nn.functional.avg_pool1d(flattened_conv_output,2)
-		#print(f"flattened_conv_output_after_pooling teacher shape: {flattened_conv_output_after_pooling.shape}\n")
+		print(f"flattened_conv_output_after_pooling teacher shape: {flattened_conv_output_after_pooling.shape}\n")
 		
 		return x, flattened_conv_output_after_pooling, conv_feature_maps	
 		# X is used to distillate knowledge from last layer trough loss functions like Cross-Entropy Loss

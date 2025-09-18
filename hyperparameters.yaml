@@ -5,7 +5,7 @@ project_name: Teste1
 exp_name: Exp1
 
 ## Defining the Teacher and the Student
-teacher: "EfficientNetB0Teacher"
+teacher: "DeepNN"
 student: "LightNN"
 
 # Training hyperparameters

@@ -15,14 +15,11 @@ from train_test_step import TrainTestBeforeDistil, TrainKD, TrainTestLoops
 from utils.arguments_from_experiment import hyperparameters_classification #, load_yaml, build_record_folder, get_args
 from utils.compare_teacher_student import compare_student_teacher, summary_func
 
-device = "cuda" if torch. torch.cuda.is_available() else "cpu"
+device = "cuda" if torch.cuda.is_available() else "cpu"
 print(f"\n DEVICE IN USE: {device} \n")
 time.sleep(1)
 
 def distillation_classification(args):
-	
-# Setting hyperparameters
-	#batch_size, num_workers, epochs, learning_rate, loss_func, optimizer_func, temperature, soft_target_loss_weight, ce_loss_weight = hyperparameters_classification()
 
 	# Loading data
 	train_loader, test_loader, len_class_names, class_to_idx = Load_Standard_Datasets.Load_CIFAR_10(args.batch_size, args.num_workers)
@@ -30,20 +27,31 @@ def distillation_classification(args):
 	# Defining the teachers and the students
 	teacher = select_teacher(model=args.teacher,num_classes=len_class_names).to(device)  # To insert the function to select the network --> Change it for a loop that can run several configurations
 
-	student = LightNN(num_classes=len_class_names, teacher_hidden_size=teacher.hidden_size).to(device)
+	if args.teacher == "EfficientNetB0Teacher":
+		student = LightNN(num_classes=len_class_names, teacher=teacher, input_size=(3,224,224)).to(device)
+		#student = LightNN(num_classes=len_class_names, teacher_hidden_size=teacher.hidden_size).to(device)
+	
+	elif args.teacher == "DeepNN":
+		student = LightNN(num_classes=len_class_names, teacher=teacher, input_size=(3,32,32)).to(device)
+		#student = LightNN(num_classes=len_class_names, teacher_hidden_size=teacher.features[-3].out_channels).to(device)
 
 	# BULD IN THIS PART THE STUDENT VARIABLES ACCORDING THE DISTILLATION STEP THAT IT IS PERFORMING.
 
-	new_student = LightNN(num_classes=len_class_names, teacher_hidden_size=teacher.hidden_size).to(device)  # this variable is used to compare the performances before and after distilate
+	new_student = LightNN(num_classes=len_class_names, teacher=teacher, input_size=(3,32,32)).to(device)  # this variable is used to compare the performances before and after distilate
 
-	#print(f"\nThe Teacher Network: {teacher.classifier}\n")   # Check how to can read the Network Nane --> Check in the pre-trained models before # Check how to 
-	# use this .classifier in other networks
-	print("The Teacher Network")
-	summary_func(model=teacher)
+	if args.teacher == "DeepNN":
+		print(f"\nThe Teacher Network: {teacher.classifier}\n")   # Check how to can read the Network Nane --> Check in the pre-trained models before # Check how to 
+	
+	else:# use this .classifier in other networks
+		print("The Teacher Network\n")
+		summary_func(model=teacher)
 	time.sleep(0.5)
-	print(f"\nThe Student Network: {student}\n")
-	#print("\nThe Student Network\n")
-	#summary_func(model=student)
+	
+	if args.student == "LightNN":
+		print(f"\nThe Student Network: {student}\n")
+	else:
+		print("Student Network: \n")
+		summary_func(model=student)
 	time.sleep(0.5)
 
 	# comparing the parameters of the teacher and student models

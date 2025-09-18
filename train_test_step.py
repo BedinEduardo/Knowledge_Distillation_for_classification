@@ -399,13 +399,6 @@ class TrainKD():
 				soft_targets = nn.functional.softmax(teacher_logits / T, dim=-1)
 				soft_probs = nn.functional.log_softmax(student_logits / T, dim=-1)
 
-			# print(f"Type soft_targets: {type(soft_targets), soft_targets} \n")
-			# print(f"Type soft_probs: {type(soft_probs), soft_probs} \n")
-			
-			# print(f"Soft targets shape: {soft_targets.shape}")
-			# print(f"Soft probs shape: {soft_probs.shape}")
-			# time.sleep(1)
-
 			# 2. Calculate and accumulate the loss
 			# for KD there are some additional steps
 			#soft_targets_loss = torch.sum(soft_targets * ((soft_targets.log() - soft_probs.size()[0]) * (T*T)))
@@ -414,16 +407,8 @@ class TrainKD():
 			# Now calculate the true label loss
 				label_loss = loss_fn_out(student_logits, label)  # calculate the loss to KD in output layer
 
-			# print(f"Type soft_targets_loss: {type(soft_targets_loss), soft_targets_loss} \n")
-			# print(f"Type label_loss: {type(label_loss), label_loss} \n")
-
-			# print(f"soft_targets_loss shape: {soft_targets_loss.shape}")
-			# print(f"label_loss shape: {label_loss.shape}")
-			# time.sleep(1)
-			
 			# #ce_loss_weight = float(ce_loss_weight)
-			# print("tyep soft_target_loss_weight:", soft_target_loss_weight, type(soft_target_loss_weight))
-			# print("type ce_loss_weight:", ce_loss_weight, type(ce_loss_weight))
+			
 				new_ce_loss_weight = 1- soft_target_loss_weight
 			# print("type new_ce_loss_weight:", new_ce_loss_weight, type(new_ce_loss_weight))
 			
@@ -443,7 +428,7 @@ class TrainKD():
 
 			elif KD == 2: # this means that the code is disllating in Soft Labels step --> First in Cosine Minimization Loss Function
 				# Calculate the Loss by the hidden layers --> target is a vector of ones.
-				hidden_rep_loss = loss_fn_soft(student_hidden_representation, teacher_hidden_representation, target=torch.ones(input.size(0)).to(device))
+				hidden_rep_loss = loss_fn_soft(student_hidden_representation, teacher_hidden_representation, target=torch.ones(input.size(0)).to(device))  #TO SOLVE THE ERROR CHECK THE DIMENSIONS OF THE TENSORS THAT ARIVES HERE - TEST WITH DIFFERENT TEACHER NETWORKS
 				# Calculate the true label loss
 				label_loss = loss_fn_out(student_logits, label)  # update this in the parameter code  # Use the same Cross-Entropy Loss -> Study new options in further
 				
@@ -462,6 +447,9 @@ class TrainKD():
 				train_loss += loss.item()  # itemize each step
 			
 			elif KD == 3:
+				print(f"regressor_student_output.shape: {regressor_student_output.shape}\n")
+				print(f"conv_feature_maps_teacher.shape: {conv_feature_maps_teacher.shape}\n")
+
 				hidden_rep_loss = loss_fn_hidden(regressor_student_output, conv_feature_maps_teacher)
 				label_loss = loss_fn_out(student_logits, label)
 				
@@ -479,17 +467,6 @@ class TrainKD():
 				optimizer_func_hidden.step()
 
 				train_loss += loss.item()
-
-			# train_loss += loss.item()  # itemize each step
-
-			# # 3. Optimizer Zero Grad
-			# optimizer.zero_grad()
-
-			# # 4. Loss Backward
-			# loss.backward()
-
-			# # 5. Optimizer step
-			# optimizer.step()
 
 			# Calculate and accuracy metric across all batches
 			y_pred_class = torch.argmax(torch.softmax(student_logits, dim=1), dim=1)

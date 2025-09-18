@@ -1,0 +1,54 @@
+# A code that perform Knowledge Distialtion using PyTorhc
+# First Start building the code for Distilate Knowledge in classification task
+# Before increment to perform Distialtion in Detection task
+
+# IN PROGRESS TASKS:
+
+A++ --> Add more 1 Teacher model and more 1 student model
+A++ --> Insert in the code how to choose others loss function
+A++ --> Insert in the code how to choose others optimization function
+A++ --> Insert in the code how to use others datasets --> Online datasets and Own datasets
+
+A --> Adjust the loss and accuracy functions (values) in test set and distillation
+A --> UPDATE IT TO GITHUB
+
+
+2. A Line code to compare the teacher and student accuracy before to distilate --> IN progress
+
+
+# TASKS TO BE DONE
+1. Plot the performances of Teacher and Students metrics --> See Daniel Bourke Examples
+2. Build helper functions by Daniel Bourke examples
+
+
+# DONE ITEMS:
+1- DEFINE THE TEST FUNCTION  --> OK DONE
+2- Build a Train fuction that will run the train, test, and distilations --> Like Daniel Bourke codes examples --> OK DONE
+
+a. the comparision between the teacher and student --> number of parameters --> Ok Done 
+b. Build a new variable for the student model --> to compare thes initial performance and the distilated performance. --> Ok Done
+
+a. Insert in hyperparameters step:
+		i. T=temperature, soft_target_loss_weight, ce_loss_weight, --> OK Done
+
+1. PRINT THE METRICS AFTER TRAINING --> ADJUST THE CODE --> Done	
+4- Call in the code - and check the parameters --> Ok Done
+
+05/09/2025
+3. Finish insert the distilation training loop for loss function in the output layer --> Working and adjusting the code --> Ok Done
+4. Adjusted the parameters via argparser and .yaml file --> now it is working automatic
+
+08/09/2025
+A => Insert in the code the prints of shapes and the comparision of the Teachers and the Students according the distillation step and results
+A+ Insert in the code the student variable according the distillation process to perform...
+AA+ ==> INSERT IN THE CODE - train_test_step.py -  THE CONDITIONS TO MAKE IT UNDERSTAND IN EACH PART OF THE DISTILLATION TASK THE DISTILLATION LOOP CODE IS - adapt the code in class "class TrainKD():"  --> After Sutend Logits line 250
+4. BUILD THE TRAIN LOOP CODE TO DISTILATE IN COSSINE LOSS MINIMIZATION
+
+10/09/2025
+A++ --> Ad in the code the distillation step about feature maps distillation --> hidden layers --> Regression loss --> Ok Done
+A+ --> Study do adapt the code about the "execute_task.py" -> remove all the "loss_func" according the loss function --> and resume the code using the KD variable to reduce the N° of variables --> Ok done
+1. Build the Distialtion codes - train and validation (test ~) ->> Train Teacher and student Ok --> Now working in the distillation code --> Ok Done
+
+16/09/2025
+A++ --> Insert in the code (hyperparameters.yaml) how to choose the others NN
+A --> UPDATE IT TO GITHUB
